@@ -27,6 +27,15 @@ plt.rcParams["ytick.minor.visible"] = True
 
 
 ############# TIER 1 ###################################################
+def zero_to_small(A):
+	"""
+	take array A and values whose abs is smalleer than SMALL
+	are converted to SMALL
+	"""
+	A[(A<SMALL) & (A>=0)] = SMALL
+	A[(A>-SMALL) & (A<0)] = -SMALL
+	return A
+
 def poly_2d(x,y,K):
 	return (K[0]+K[1]*x+K[2]*y + K[3]*x**2+K[4]*x*y+K[5]*y**2 + 
 		K[6]*x**3+K[7]*x**2*y+K[8]*x*y**2+K[9]*y**3)
@@ -149,7 +158,7 @@ def read_image(fname):
 	Return the loaded image as is (with alpha channel)
 	As a numpy array
 	"""
-	img = cv2.imread(fname,-1)
+	img = cv2.imread(fname,cv2.IMREAD_GRAYSCALE)
 	return img
 
 def dir_ftype(directory,extension):
@@ -516,12 +525,14 @@ def ghosal_edge_v2(img,Ks,kmin=0,kmax=1000,lmax=0.5,phimin=1,thresholding=True,d
 	#A00 = scig.convolve2d(img,Vc00,mode='same') # not needed
 	A11 = Anorm(1)*scig.oaconvolve(img,Vc11,mode=mode)
 	A20 = Anorm(2)*scig.oaconvolve(img,Vc20,mode=mode)
-	
-	phi = np.arctan(np.imag(A11)/np.real(A11)) #divide by zero encountered in true_divide, invalid value encountered in true_divide, this propagates to warnings in other places
+
+	phi = np.arctan(np.imag(A11)/zero_to_small(np.real(A11)))
 	Al11 = np.real(A11)*np.cos(phi)+np.imag(A11)*np.sin(phi)
 	l = np.real(A20)/Al11 # A20 has no imaginary component so A20 = A'20
-	k = abs(3*Al11/(2*(1-l**2)**(3/2))) # zero in true divide, invalid value encountered in power
-
+	l = np.minimum(l,1-SMALL) # chop off those that go beyond the kernel boundaries
+	l = np.maximum(l,-1+SMALL)
+	k = abs(3*Al11/(2*(1-l**2)**(3/2))) 
+	
 	if thresholding==True:
 		# conditions
 		phi_c = abs(phi)>phimin
