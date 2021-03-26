@@ -1,0 +1,7 @@
+Name,process,GPars,averageWeight
+beluga.jpg,x,ghosal_edge_parameters.txt,1500kg
+blue.jpg,x,ghosal_edge_parameters.txt,100000kg
+dolphin.jpg,ghosal_edge_parameters.txt,,120kg
+humpback.jpg,x,ghosal_edge_parameters.txt,27000kg
+narwhal.jpg,x,ghosal_edge_parameters.txt,1000kg
+orca.jpg,x,ghosal_edge_parameters.txt,5000kg
